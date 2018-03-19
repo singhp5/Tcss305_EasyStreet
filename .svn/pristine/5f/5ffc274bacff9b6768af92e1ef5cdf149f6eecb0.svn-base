@@ -1,0 +1,96 @@
+/*
+ * TCSS 305 
+ * Assignment 3 - Easy Street
+ */
+
+package model;
+
+import java.util.Map;
+
+/**
+ * This Car class extends an AbstractVehicle class 
+ * to move car according to the given specifications.
+ * @author prabhjot singh
+ * @version 1/27/2016
+ */
+public class Car extends AbstractVehicle {
+
+    /**
+     * Number of steps this object must skip if it's dead.
+     */
+    private static final int MY_DEATH_TIME = 10;
+
+    /**
+     * This is a constructor which construct a Car object.
+     * 
+     * @param theX is the position of Car on x-axis.
+     * @param theY is the position of Car on y-axis.
+     * @param theDir is the current direction of Bicycle.
+     */
+    public Car(final int theX, final int theY, final Direction theDir) {
+        super(theX, theY, theDir, MY_DEATH_TIME);
+
+    }
+
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        final Direction carDirection = getDirection();
+
+        Direction newCarDirection = carDirection;
+
+        final Terrain terrainLeft = theNeighbors.get(carDirection.left());
+        final Terrain terrainRight = theNeighbors.get(carDirection.right());
+
+        switch (theNeighbors.get(carDirection)) {
+            case WALL:
+            case GRASS:
+            case TRAIL:
+                if (terrainLeft == Terrain.STREET || terrainLeft == Terrain.LIGHT) {
+                    newCarDirection = carDirection.left();
+                    break;
+                } else {
+                    if (terrainRight == Terrain.STREET
+                                    || terrainLeft == Terrain.LIGHT) {
+                        newCarDirection = carDirection.right();
+                        break;
+                    } else {
+                        newCarDirection = carDirection.reverse();
+                        break;
+                    }
+                }
+            default:
+                break;
+        }
+        return newCarDirection;
+    }
+
+    /**
+     * Returns whether or not the car may move onto the given type of terrain,
+     * when the street lights are the given color.
+     * 
+     * @param theTerrain The terrain.
+     * @param theLight The light color.
+     * @return whether or not this car may move onto the given type of terrain
+     *         when the street lights are the given color.
+     */
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean result = true;
+
+        switch (theTerrain) {
+            case WALL:
+            case GRASS:
+            case TRAIL:
+                result = false;
+                break;
+            case LIGHT:
+                if (theLight == Light.RED) {
+                    result = false;
+                    break;
+                }
+            default:
+                break;
+        }
+        return result;
+    }
+
+}

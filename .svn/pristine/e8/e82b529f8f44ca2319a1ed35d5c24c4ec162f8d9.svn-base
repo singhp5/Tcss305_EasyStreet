@@ -1,0 +1,97 @@
+/*
+ * TCSS 305 – Winter 2016
+ * Assignment 3 – EasyStreet
+ */
+package model;
+
+import java.util.Map;
+
+/**
+ * This Taxi class extends an AbstractVehicle class 
+ * to move car according to the given specifications.
+ * @author prabhjot singh
+ * @version 1/27/2016
+ */
+public class Taxi extends AbstractVehicle {
+
+    /** */ 
+    private static final int MYDEATHTIME = 10;  
+
+    /** */
+    private static final int MYTAXI_C = 3;
+    /** */
+    private int  myClockC;
+    /**
+     * Initializes the instance fields.
+     * 
+     * @param theX the x coordinate
+     * @param theY the y coordinate
+     * @param theDir the direction
+     */   
+    public Taxi(final int theX, final int theY, final Direction theDir) {
+        super(theX, theY, theDir, MYDEATHTIME);
+    }
+
+    /**
+     * Returns the direction in which the taxi can possibly move.
+     * 
+     * @param theNeighbors the map of neighboring terrain.
+     * @return the direction the car chooses to move.
+     */
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        final Direction taxiDirection = getDirection();
+
+        Direction newTaxiDirection = taxiDirection;
+
+        final Terrain terrainLeft = theNeighbors.get(taxiDirection.left());
+        final Terrain terrainRight = theNeighbors.get(taxiDirection.right());
+
+        switch (theNeighbors.get(taxiDirection)) {
+            case WALL:
+            case GRASS:
+            case TRAIL:
+                if (terrainLeft == Terrain.STREET || terrainLeft == Terrain.LIGHT) {
+                    newTaxiDirection = taxiDirection.left();
+                    break;
+                } else {
+                    if (terrainRight == Terrain.STREET
+                                    || terrainLeft == Terrain.LIGHT) {
+                        newTaxiDirection = taxiDirection.right();
+                        break;
+                    } else {
+                        newTaxiDirection = taxiDirection.reverse();
+                        break;
+                    }
+                }
+            default:
+                break;
+        }
+        return newTaxiDirection;
+    }
+
+    /**
+     * Returns a boolean value in which the car can pass through a specified terrain.
+     * 
+     * @param theTerrain The terrain.
+     * @param theLight The light color.
+     * @return a boolean value in which the car can pass through a specified terrain and 
+     * light.
+     */
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean result = false;
+        if (theTerrain == Terrain.STREET) {
+            result = true;      
+        } else if (theTerrain == Terrain.LIGHT) {
+            myClockC++;
+            if (theLight == Light.GREEN || theLight == Light.YELLOW || myClockC == MYTAXI_C) {
+                result = true;
+                myClockC = 0;
+            }
+
+        }
+
+        return result;
+    }
+
+}
